@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use chrono::{DateTime, Local, Timelike};
+use chrono::{DateTime, Timelike};
 use chrono::{Datelike, Duration};
 use serenity::async_trait;
 use serenity::model::gateway::Ready;
@@ -10,22 +10,25 @@ use std::ops::Add;
 use std::sync::Arc;
 use tracing::{debug, info};
 
-fn next_weekday(weekday: chrono::Weekday) -> DateTime<Local> {
-    let mut time = chrono::Local::now();
+fn now() -> DateTime<chrono_tz::Tz> {
+    chrono::Utc::now().with_timezone(&chrono_tz::Europe::Amsterdam)
+}
+
+fn next_weekday(weekday: chrono::Weekday) -> DateTime<chrono_tz::Tz> {
+    let mut time = now();
     while time.weekday() != weekday {
         time = time.add(Duration::days(1))
     }
     time
 }
 
-fn next_invitation_time() -> DateTime<Local> {
-    let now = chrono::Local::now();
+fn next_invitation_time() -> DateTime<chrono_tz::Tz> {
     let time = next_weekday(chrono::Weekday::Tue);
-    let time = now.with_hour(10).unwrap();
+    let time = time.with_hour(10).unwrap();
     let time = time.with_minute(0).unwrap();
     let time = time.with_second(0).unwrap();
     let time = time.with_nanosecond(0).unwrap();
-    if time > now {
+    if time > now() {
         time
     } else {
         time.add(Duration::days(1))
@@ -35,12 +38,12 @@ fn next_invitation_time() -> DateTime<Local> {
 async fn sleep_until_next_invitation_time() {
     let sleep_until = next_invitation_time();
     debug!("Next invitation is send at: {sleep_until}");
-    let duration = sleep_until.signed_duration_since(chrono::Local::now());
+    let duration = sleep_until.signed_duration_since(now());
     debug!("Therefore we will wait for: {duration}");
     tokio::time::sleep(duration.to_std().unwrap()).await;
 }
 
-fn next_session_date() -> DateTime<Local> {
+fn next_session_date() -> DateTime<chrono_tz::Tz> {
     let time = next_weekday(chrono::Weekday::Thu);
     time.add(Duration::weeks(2))
 }
