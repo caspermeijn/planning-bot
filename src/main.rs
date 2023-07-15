@@ -48,6 +48,17 @@ fn next_session_date() -> DateTime<chrono_tz::Tz> {
     time.add(Duration::weeks(2))
 }
 
+fn start_wake_up_self_loop(self_url: String) {
+    tokio::spawn(async move {
+        loop {
+            let sleep = Duration::minutes(30);
+            tokio::time::sleep(sleep.to_std().unwrap()).await;
+            debug!("Wake up myself at: {self_url}");
+            reqwest::get(&self_url).await.unwrap();
+        }
+    });
+}
+
 #[derive(Clone)]
 struct Bot {
     channel_id: ChannelId,
@@ -88,7 +99,13 @@ impl EventHandler for Bot {
 async fn serenity(
     #[shuttle_secrets::Secrets] secret_store: SecretStore,
 ) -> shuttle_serenity::ShuttleSerenity {
-    // Get the discord token set in `Secrets.toml`
+
+    if let Some(self_url) = secret_store.get("SELF_URL") {
+        start_wake_up_self_loop(self_url);
+    } else {
+        return Err(anyhow!("'SELF_URL' was not found; Empty string means no self url").into());
+    };
+
     let token = if let Some(token) = secret_store.get("DISCORD_TOKEN") {
         token
     } else {
