@@ -7,7 +7,7 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 use shuttle_secrets::SecretStore;
 use std::ops::Add;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use tracing::{debug, info};
 
 fn now() -> DateTime<chrono_tz::Tz> {
@@ -59,9 +59,11 @@ fn start_wake_up_self_loop(self_url: String) {
     });
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 struct Bot {
     channel_id: ChannelId,
+    self_user: OnceLock<CurrentUser>,
+    owner: OnceLock<User>,
 }
 
 impl Bot {
@@ -81,6 +83,11 @@ impl Bot {
 impl EventHandler for Bot {
     async fn ready(&self, ctx: Context, ready: Ready) {
         info!("{} is connected!", ready.user.name);
+        self.self_user.set(ready.user).unwrap();
+
+        let application = ctx.http.get_current_application_info().await.unwrap();
+        info!("My owner is {}", application.owner.name);
+        self.owner.set(application.owner).unwrap();
 
         let ctx = Arc::new(ctx);
         let bot = self.clone();
@@ -92,6 +99,21 @@ impl EventHandler for Bot {
                 bot.send_planning_invitation(Context::clone(&ctx)).await;
             }
         });
+    }
+
+    async fn reaction_add(&self, ctx: Context, add_reaction: Reaction) {
+        let self_user = self.self_user.get().unwrap();
+        let owner = self.owner.get().unwrap();
+
+        let message = add_reaction.message(&ctx.http).await.unwrap();
+        if message.author.id == self_user.id {
+            let reaction_user = add_reaction.user(&ctx.http).await.unwrap();
+            let channel = message.channel(&ctx.http).await.unwrap();
+            info!("Reaction received: {} from {}", add_reaction.emoji, reaction_user.name);
+            let content = format!("{} heeft gereageerd in {}", reaction_user.mention(), channel.mention());
+            let owner_dm_channel = owner.create_dm_channel(&ctx.http).await.unwrap();
+            owner_dm_channel.say(&ctx.http, content).await.unwrap();
+        }
     }
 }
 
@@ -119,10 +141,11 @@ async fn serenity(
     };
 
     // Set gateway intents, which decides what events the bot will be notified about
-    let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::MESSAGE_CONTENT;
+    let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::MESSAGE_CONTENT | GatewayIntents::GUILD_MESSAGE_REACTIONS;
 
     let bot = Bot {
         channel_id: ChannelId(channel_id),
+        ..Default::default()
     };
 
     let client = Client::builder(&token, intents)
