@@ -109,8 +109,15 @@ impl EventHandler for Bot {
         if message.author.id == self_user.id {
             let reaction_user = add_reaction.user(&ctx.http).await.unwrap();
             let channel = message.channel(&ctx.http).await.unwrap();
-            info!("Reaction received: {} from {}", add_reaction.emoji, reaction_user.name);
-            let content = format!("{} heeft gereageerd in {}", reaction_user.mention(), channel.mention());
+            info!(
+                "Reaction received: {} from {}",
+                add_reaction.emoji, reaction_user.name
+            );
+            let content = format!(
+                "{} heeft gereageerd in {}",
+                reaction_user.mention(),
+                channel.mention()
+            );
             let owner_dm_channel = owner.create_dm_channel(&ctx.http).await.unwrap();
             owner_dm_channel.say(&ctx.http, content).await.unwrap();
         }
@@ -121,7 +128,6 @@ impl EventHandler for Bot {
 async fn serenity(
     #[shuttle_secrets::Secrets] secret_store: SecretStore,
 ) -> shuttle_serenity::ShuttleSerenity {
-
     if let Some(self_url) = secret_store.get("SELF_URL") {
         start_wake_up_self_loop(self_url);
     } else {
@@ -141,7 +147,9 @@ async fn serenity(
     };
 
     // Set gateway intents, which decides what events the bot will be notified about
-    let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::MESSAGE_CONTENT | GatewayIntents::GUILD_MESSAGE_REACTIONS;
+    let intents = GatewayIntents::GUILD_MESSAGES
+        | GatewayIntents::MESSAGE_CONTENT
+        | GatewayIntents::GUILD_MESSAGE_REACTIONS;
 
     let bot = Bot {
         channel_id: ChannelId(channel_id),
