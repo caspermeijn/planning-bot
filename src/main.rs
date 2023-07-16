@@ -51,7 +51,7 @@ fn next_session_date() -> DateTime<chrono_tz::Tz> {
 fn start_wake_up_self_loop(self_url: String) {
     tokio::spawn(async move {
         loop {
-            let sleep = Duration::minutes(30);
+            let sleep = Duration::minutes(5);
             tokio::time::sleep(sleep.to_std().unwrap()).await;
             debug!("Wake up myself at: {self_url}");
             reqwest::get(&self_url).await.unwrap();
