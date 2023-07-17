@@ -70,7 +70,7 @@ impl Bot {
     async fn send_planning_invitation(&self, ctx: Context) {
         let date = next_session_date();
         let date_localized = date.format_localized("%A %e %B", chrono::Locale::nl_NL);
-        let text = format!("De volgende datum voor een potentiele sessie is {}.\n\nReageer even met 👍 of 👎 om aan te geven of je kan.", date_localized);
+        let text = format!("@everyone\nDe volgende datum voor een potentiele sessie is {}.\n\nReageer even met 👍 of 👎 om aan te geven of je kan.", date_localized);
 
         self.channel_id
             .send_message(&ctx.http, |message| message.content(text))
