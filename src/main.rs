@@ -1,6 +1,5 @@
 use crate::time_helper::*;
 use anyhow::anyhow;
-use chrono::Duration;
 use serenity::async_trait;
 use serenity::model::gateway::Ready;
 use serenity::model::prelude::*;
@@ -17,17 +16,6 @@ async fn sleep_until_next_invitation_time() {
     let duration = sleep_until.signed_duration_since(now());
     debug!("Therefore we will wait for: {duration}");
     tokio::time::sleep(duration.to_std().unwrap()).await;
-}
-
-fn start_wake_up_self_loop(self_url: String) {
-    tokio::spawn(async move {
-        loop {
-            let sleep = Duration::minutes(5);
-            tokio::time::sleep(sleep.to_std().unwrap()).await;
-            debug!("Wake up myself at: {self_url}");
-            reqwest::get(&self_url).await.unwrap();
-        }
-    });
 }
 
 #[derive(Clone, Default)]
@@ -99,12 +87,6 @@ impl EventHandler for Bot {
 async fn serenity(
     #[shuttle_secrets::Secrets] secret_store: SecretStore,
 ) -> shuttle_serenity::ShuttleSerenity {
-    if let Some(self_url) = secret_store.get("SELF_URL") {
-        start_wake_up_self_loop(self_url);
-    } else {
-        return Err(anyhow!("'SELF_URL' was not found; Empty string means no self url").into());
-    };
-
     let token = if let Some(token) = secret_store.get("DISCORD_TOKEN") {
         token
     } else {
