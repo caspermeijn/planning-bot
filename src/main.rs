@@ -1,51 +1,22 @@
+use crate::time_helper::*;
 use anyhow::anyhow;
-use chrono::{DateTime, Timelike};
-use chrono::{Datelike, Duration};
+use chrono::Duration;
 use serenity::async_trait;
 use serenity::model::gateway::Ready;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use shuttle_secrets::SecretStore;
-use std::ops::Add;
 use std::sync::{Arc, OnceLock};
 use tracing::{debug, info};
 
-fn now() -> DateTime<chrono_tz::Tz> {
-    chrono::Utc::now().with_timezone(&chrono_tz::Europe::Amsterdam)
-}
-
-fn next_weekday(weekday: chrono::Weekday) -> DateTime<chrono_tz::Tz> {
-    let mut time = now();
-    while time.weekday() != weekday {
-        time = time.add(Duration::days(1))
-    }
-    time
-}
-
-fn next_invitation_time() -> DateTime<chrono_tz::Tz> {
-    let time = next_weekday(chrono::Weekday::Tue);
-    let time = time.with_hour(10).unwrap();
-    let time = time.with_minute(0).unwrap();
-    let time = time.with_second(0).unwrap();
-    let time = time.with_nanosecond(0).unwrap();
-    if time > now() {
-        time
-    } else {
-        time.add(Duration::days(1))
-    }
-}
+mod time_helper;
 
 async fn sleep_until_next_invitation_time() {
-    let sleep_until = next_invitation_time();
+    let sleep_until = now().next_invitation_time();
     debug!("Next invitation is send at: {sleep_until}");
     let duration = sleep_until.signed_duration_since(now());
     debug!("Therefore we will wait for: {duration}");
     tokio::time::sleep(duration.to_std().unwrap()).await;
-}
-
-fn next_session_date() -> DateTime<chrono_tz::Tz> {
-    let time = next_weekday(chrono::Weekday::Thu);
-    time.add(Duration::weeks(2))
 }
 
 fn start_wake_up_self_loop(self_url: String) {
@@ -68,7 +39,7 @@ struct Bot {
 
 impl Bot {
     async fn send_planning_invitation(&self, ctx: Context) {
-        let date = next_session_date();
+        let date = now().next_session_date();
         let date_localized = date.format_localized("%A %e %B", chrono::Locale::nl_NL);
         let text = format!("@everyone\nDe volgende datum voor een potentiele sessie is {}.\n\nReageer even met 👍 of 👎 om aan te geven of je kan.", date_localized);
 
