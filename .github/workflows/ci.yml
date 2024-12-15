@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  clippy_rust_version: '1.82'
+
+jobs:
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check
+
+  toml_validation:
+    runs-on: ubuntu-latest
+    container:
+      image: tamasfe/taplo:0.8.1
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: taplo lint
+        run: taplo lint
+      - name: taplo fmt
+        run: taplo fmt --check --diff
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.clippy_rust_version }}
+          components: clippy
+      - run: cargo clippy --all-features --tests -- -D warnings
+
+  machete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@cargo-machete
+      - name: Check unused dependencies
+        run: cargo machete
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: test
+        run: cargo test 
