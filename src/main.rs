@@ -4,7 +4,6 @@ use serenity::async_trait;
 use serenity::model::gateway::Ready;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use shuttle_secrets::SecretStore;
 use std::sync::{Arc, OnceLock};
 use tracing::{debug, info};
 
@@ -85,7 +84,7 @@ impl EventHandler for Bot {
 
 #[shuttle_runtime::main]
 async fn serenity(
-    #[shuttle_secrets::Secrets] secret_store: SecretStore,
+    #[shuttle_runtime::Secrets] secret_store: shuttle_runtime::SecretStore,
 ) -> shuttle_serenity::ShuttleSerenity {
     let token = if let Some(token) = secret_store.get("DISCORD_TOKEN") {
         token
