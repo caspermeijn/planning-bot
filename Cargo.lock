@@ -1940,12 +1940,12 @@ dependencies = [
 
 [[package]]
 name = "shuttle-secrets"
-version = "0.21.0"
+version = "0.42.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6c777ea86566812a0de4d54eee1e50f8592dd7a59a79de4006d09c40a63aa72"
+checksum = "df461c61fcae7501a66fdca5fdc97134a7addc38632555b7ea6bdb3a4a4d6921"
 dependencies = [
  "async-trait",
- "serde",
+ "serde_json",
  "shuttle-service",
 ]
 
