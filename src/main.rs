@@ -1,5 +1,6 @@
 use crate::time_helper::*;
 use anyhow::anyhow;
+use serenity::all::CreateMessage;
 use serenity::async_trait;
 use serenity::model::gateway::Ready;
 use serenity::model::prelude::*;
@@ -30,8 +31,9 @@ impl Bot {
         let date_localized = date.format_localized("%A %e %B", chrono::Locale::nl_NL);
         let text = format!("@everyone\nDe volgende datum voor een potentiele sessie is {}.\n\nReageer even met 👍 of 👎 om aan te geven of je kan.", date_localized);
 
+        let message = CreateMessage::new().content(text);
         self.channel_id
-            .send_message(&ctx.http, |message| message.content(text))
+            .send_message(&ctx.http, message)
             .await
             .unwrap();
     }
@@ -44,8 +46,9 @@ impl EventHandler for Bot {
         self.self_user.set(ready.user).unwrap();
 
         let application = ctx.http.get_current_application_info().await.unwrap();
-        info!("My owner is {}", application.owner.name);
-        self.owner.set(application.owner).unwrap();
+        let owner = application.owner.unwrap();
+        info!("My owner is {}", owner.name);
+        self.owner.set(owner).unwrap();
 
         let ctx = Arc::new(ctx);
         let bot = self.clone();
@@ -104,7 +107,7 @@ async fn serenity(
         | GatewayIntents::GUILD_MESSAGE_REACTIONS;
 
     let bot = Bot {
-        channel_id: ChannelId(channel_id),
+        channel_id: ChannelId::new(channel_id),
         ..Default::default()
     };
 
