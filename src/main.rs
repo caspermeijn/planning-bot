@@ -37,6 +37,12 @@ impl Bot {
             .await
             .unwrap();
     }
+
+    async fn send_owner_message(&self, ctx: &Context, content: impl Into<String>) {
+        let owner = self.owner.get().unwrap();
+        let owner_dm_channel = owner.create_dm_channel(&ctx.http).await.unwrap();
+        owner_dm_channel.say(&ctx.http, content).await.unwrap();
+    }
 }
 
 #[async_trait]
@@ -53,6 +59,8 @@ impl EventHandler for Bot {
         let ctx = Arc::new(ctx);
         let bot = self.clone();
 
+        self.send_owner_message(&ctx, "Hello owner, I just started up")
+            .await;
         tokio::spawn(async move {
             loop {
                 sleep_until_next_invitation_time().await;
@@ -64,7 +72,6 @@ impl EventHandler for Bot {
 
     async fn reaction_add(&self, ctx: Context, add_reaction: Reaction) {
         let self_user = self.self_user.get().unwrap();
-        let owner = self.owner.get().unwrap();
 
         let message = add_reaction.message(&ctx.http).await.unwrap();
         if message.author.id == self_user.id {
@@ -74,13 +81,15 @@ impl EventHandler for Bot {
                 "Reaction received: {} from {}",
                 add_reaction.emoji, reaction_user.name
             );
-            let content = format!(
-                "{} heeft gereageerd in {}",
-                reaction_user.mention(),
-                channel.mention()
-            );
-            let owner_dm_channel = owner.create_dm_channel(&ctx.http).await.unwrap();
-            owner_dm_channel.say(&ctx.http, content).await.unwrap();
+            self.send_owner_message(
+                &ctx,
+                format!(
+                    "{} heeft gereageerd in {}",
+                    reaction_user.mention(),
+                    channel.mention()
+                ),
+            )
+            .await;
         }
     }
 }
