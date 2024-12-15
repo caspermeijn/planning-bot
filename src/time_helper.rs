@@ -14,9 +14,6 @@ pub trait TimeHelpers {
 impl TimeHelpers for DateTime<chrono_tz::Tz> {
     fn next_weekday(self, weekday: chrono::Weekday) -> DateTime<chrono_tz::Tz> {
         let mut time = self;
-        if time.weekday() == weekday {
-            time = time.add(Duration::days(1))
-        }
         while time.weekday() != weekday {
             time = time.add(Duration::days(1))
         }
@@ -33,7 +30,7 @@ impl TimeHelpers for DateTime<chrono_tz::Tz> {
         if time > now {
             time
         } else {
-            time.add(Duration::days(1))
+            time.add(Duration::days(7))
         }
     }
 
@@ -75,7 +72,7 @@ mod tests {
         assert_eq!(
             invitation_time,
             chrono_tz::Europe::Amsterdam
-                .with_ymd_and_hms(2023, 8, 10, 10, 0, 0)
+                .with_ymd_and_hms(2023, 8, 3, 10, 0, 0)
                 .unwrap()
         );
     }
@@ -101,6 +98,17 @@ mod tests {
             invitation_time,
             chrono_tz::Europe::Amsterdam
                 .with_ymd_and_hms(2023, 8, 8, 10, 0, 0)
+                .unwrap()
+        );
+
+        let now = chrono_tz::Europe::Amsterdam
+            .with_ymd_and_hms(2024, 12, 17, 9, 0, 0)
+            .unwrap();
+        let invitation_time = now.next_invitation_time();
+        assert_eq!(
+            invitation_time,
+            chrono_tz::Europe::Amsterdam
+                .with_ymd_and_hms(2024, 12, 17, 10, 0, 0)
                 .unwrap()
         );
     }
