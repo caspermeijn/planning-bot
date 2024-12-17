@@ -59,8 +59,12 @@ impl EventHandler for Bot {
         let ctx = Arc::new(ctx);
         let bot = self.clone();
 
-        self.send_owner_message(&ctx, "Hello owner, I just started up")
-            .await;
+        let version = env!("CARGO_PKG_VERSION");
+        self.send_owner_message(
+            &ctx,
+            format!("Hello owner, I just started up. I am version {version}."),
+        )
+        .await;
         tokio::spawn(async move {
             loop {
                 sleep_until_next_invitation_time().await;
