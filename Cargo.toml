@@ -2,6 +2,10 @@
 name = "planning-bot"
 version = "0.1.0"
 edition = "2021"
+authors = ["Casper Meijn <casper@meijn.net>"]
+description = "This Discord bot helps us with planning our D&D sessions"
+repository = "https://github.com/caspermeijn/planning-bot"
+license = "GPL-3.0-or-later"
 
 [dependencies]
 anyhow = "1.0.66"
