@@ -36,7 +36,7 @@ impl TimeHelpers for DateTime<chrono_tz::Tz> {
 
     fn next_session_date(self) -> DateTime<chrono_tz::Tz> {
         self.next_weekday(chrono::Weekday::Thu)
-            .add(Duration::weeks(2))
+            .add(Duration::weeks(3))
             .with_hour(19)
             .unwrap()
             .with_minute(0)
@@ -121,7 +121,7 @@ mod tests {
         assert_eq!(
             now.next_session_date(),
             chrono_tz::Europe::Amsterdam
-                .with_ymd_and_hms(2023, 8, 17, 19, 0, 0)
+                .with_ymd_and_hms(2023, 8, 24, 19, 0, 0)
                 .unwrap()
         )
     }
