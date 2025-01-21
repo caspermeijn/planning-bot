@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3](https://github.com/caspermeijn/planning-bot/compare/v0.1.2...v0.1.3) - 2025-01-21
+
+### Other
+
+- Merge pull request [#26](https://github.com/caspermeijn/planning-bot/pull/26) from caspermeijn/dependabot/cargo/tokio-1.43.0
+- Merge pull request [#27](https://github.com/caspermeijn/planning-bot/pull/27) from caspermeijn/dependabot/cargo/chrono-tz-0.10.1
+- *(deps)* bump chrono-tz from 0.10.0 to 0.10.1
+
 ## [0.1.2](https://github.com/caspermeijn/planning-bot/compare/v0.1.1...v0.1.2) - 2024-12-17
 
 ### Added
