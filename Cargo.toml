@@ -1,6 +1,6 @@
 [package]
 name = "planning-bot"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["Casper Meijn <casper@meijn.net>"]
 description = "This Discord bot helps us with planning our D&D sessions"
