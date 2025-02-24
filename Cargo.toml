@@ -8,7 +8,7 @@ repository = "https://github.com/caspermeijn/planning-bot"
 license = "GPL-3.0-or-later"
 
 [dependencies]
-anyhow = "1.0.95"
+anyhow = "1.0.96"
 chrono = { version = "0.4", features = ["unstable-locales"] }
 chrono-tz = "0.10.1"
 serenity = { version = "0.12", default-features = false, features = [
