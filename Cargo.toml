@@ -19,5 +19,5 @@ serenity = { version = "0.12", default-features = false, features = [
 ] }
 shuttle-runtime = "0.52"
 shuttle-serenity = "0.52"
-tokio = "1.43.0"
+tokio = "1.44.2"
 tracing = "0.1.37"
