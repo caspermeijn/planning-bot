@@ -8,16 +8,16 @@ repository = "https://github.com/caspermeijn/planning-bot"
 license = "GPL-3.0-or-later"
 
 [dependencies]
-anyhow = "1.0.95"
+anyhow = "1.0.98"
 chrono = { version = "0.4", features = ["unstable-locales"] }
-chrono-tz = "0.10.1"
+chrono-tz = "0.10.3"
 serenity = { version = "0.12", default-features = false, features = [
   "client",
   "gateway",
   "rustls_backend",
   "model",
 ] }
-shuttle-runtime = "0.52"
-shuttle-serenity = "0.52"
-tokio = "1.43.0"
-tracing = "0.1.37"
+shuttle-runtime = "0.53"
+shuttle-serenity = "0.53"
+tokio = "1.44.2"
+tracing = "0.1.41"
