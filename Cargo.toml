@@ -18,6 +18,6 @@ serenity = { version = "0.12", default-features = false, features = [
   "model",
 ] }
 shuttle-runtime = "0.53"
-shuttle-serenity = "0.53"
+shuttle-serenity = "0.54"
 tokio = "1.44.2"
 tracing = "0.1.41"
